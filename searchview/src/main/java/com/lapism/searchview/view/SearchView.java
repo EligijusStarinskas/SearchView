@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -47,7 +48,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 	public static final int SPEECH_REQUEST_CODE = 1234;
 	private final Context mContext;
 	private int     mVersion                = SearchCodes.VERSION_TOOLBAR;
-	private int     mStyle                  = SearchCodes.STYLE_TOOLBAR_CLASSIC;
+	private int     mStyle                  = SearchCodes.STYLE_TOOLBAR_WITH_DRAWER;
 	private int     ANIMATION_DURATION      = 360;
 	private boolean mIsSearchOpen           = false;
 	private boolean mIsSuggestionsAvailable = true;
@@ -64,6 +65,8 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 	private CharSequence        mUserQuery;
 	private SavedState          mSavedState;
 	private ArrowDrawable       mSearchArrow;
+	private Drawable            mSearchArrowClassic;
+	private Drawable            mDefaultIconClassic;
 	private RecyclerView        mRecyclerView;
 	private CardView            mCardView;
 	private EditText            mEditText;
@@ -199,20 +202,46 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 				if (hasFocus) {
 					showKeyboard();
 					showSuggestions();
-					if (mSearchArrow != null) {
-						mSearchArrow.setVerticalMirror(false);
-						mSearchArrow.animate(ArrowDrawable.STATE_ARROW);
-					}
+					showBackArrow();
 				} else {
 					hideKeyboard();
 					hideSuggestions();
-					if (mSearchArrow != null) {
-						mSearchArrow.setVerticalMirror(true);
-						mSearchArrow.animate(ArrowDrawable.STATE_HAMBURGER);
-					}
+					hideArrow();
 				}
 			}
 		});
+	}
+
+	private void showBackArrow() {
+		switch (mStyle) {
+			case SearchCodes.STYLE_TOOLBAR_WITH_DRAWER:
+				if (mSearchArrow != null) {
+					mSearchArrow.setVerticalMirror(false);
+					mSearchArrow.animate(ArrowDrawable.STATE_ARROW);
+				}
+				break;
+			case SearchCodes.STYLE_TOOLBAR_CLASSIC:
+				if (mSearchArrowClassic != null) {
+					mBackImageView.setImageDrawable(mSearchArrowClassic);
+				}
+				break;
+		}
+	}
+
+	private void hideArrow() {
+		switch (mStyle) {
+			case SearchCodes.STYLE_TOOLBAR_WITH_DRAWER:
+				if (mSearchArrow != null) {
+					mSearchArrow.setVerticalMirror(true);
+					mSearchArrow.animate(ArrowDrawable.STATE_HAMBURGER);
+				}
+				break;
+			case SearchCodes.STYLE_TOOLBAR_CLASSIC:
+				if (mDefaultIconClassic != null) {
+					mBackImageView.setImageDrawable(mDefaultIconClassic);
+				}
+				break;
+		}
 	}
 
 	private void initStyle(AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -222,7 +251,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 				setVersion(attr.getInt(R.styleable.SearchView_search_version, SearchCodes.VERSION_TOOLBAR));
 			}
 			if (attr.hasValue(R.styleable.SearchView_search_style)) {
-				setStyle(attr.getInt(R.styleable.SearchView_search_style, SearchCodes.STYLE_TOOLBAR_CLASSIC));
+				setStyle(attr.getInt(R.styleable.SearchView_search_style, SearchCodes.STYLE_TOOLBAR_WITH_DRAWER));
 			}
 			if (attr.hasValue(R.styleable.SearchView_search_theme)) {
 				setTheme(attr.getInt(R.styleable.SearchView_search_theme, SearchCodes.THEME_LIGHT));
@@ -288,12 +317,20 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 
 	public void setStyle(int style) {
 		if (mVersion == SearchCodes.VERSION_TOOLBAR) {
-			if (style == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
-				mSearchArrow = new ArrowDrawable(mContext);
-				mBackImageView.setImageDrawable(mSearchArrow);
+			if (style == SearchCodes.STYLE_TOOLBAR_WITH_DRAWER || style == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
 				mVoiceImageView.setImageResource(R.drawable.search_ic_mic_black_24dp);
 				mEmptyImageView.setImageResource(R.drawable.search_ic_clear_black_24dp);
 			}
+			if (style == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
+				mSearchArrowClassic = ContextCompat.getDrawable(mContext, R.drawable.search_ic_arrow_back_black_24dp);
+				mDefaultIconClassic = ContextCompat.getDrawable(mContext, R.drawable.icon_search_light);
+				mBackImageView.setImageDrawable(mDefaultIconClassic);
+			}
+			if (style == SearchCodes.STYLE_TOOLBAR_WITH_DRAWER) {
+				mSearchArrow = new ArrowDrawable(mContext);
+				mBackImageView.setImageDrawable(mSearchArrow);
+			}
+
 		}
 		if (mVersion == SearchCodes.VERSION_MENU_ITEM) {
 			if (style == SearchCodes.STYLE_MENU_ITEM_CLASSIC) {
@@ -313,7 +350,12 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 	public void setTheme(int theme) {
 		if (theme == SearchCodes.THEME_LIGHT) {
 			if (mVersion == SearchCodes.VERSION_TOOLBAR) {
-				mSearchArrow.setColor(ContextCompat.getColor(mContext, R.color.search_light_icon));
+				if (mStyle == SearchCodes.STYLE_TOOLBAR_WITH_DRAWER) {
+					mSearchArrow.setColor(ContextCompat.getColor(mContext, R.color.search_light_icon));
+				}
+				if (mStyle == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
+					mBackImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
+				}
 				mVoiceImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
 				mEmptyImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
 			}
@@ -333,7 +375,12 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 
 		if (theme == SearchCodes.THEME_DARK) {
 			if (mVersion == SearchCodes.VERSION_TOOLBAR) {
-				mSearchArrow.setColor(ContextCompat.getColor(mContext, R.color.search_dark_icon));
+				if (mStyle == SearchCodes.STYLE_TOOLBAR_WITH_DRAWER) {
+					mSearchArrow.setColor(ContextCompat.getColor(mContext, R.color.search_dark_icon));
+				}
+				if (mStyle == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
+					mBackImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
+				}
 				mVoiceImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
 				mEmptyImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
 			}

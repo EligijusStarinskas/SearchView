@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
 
     <View
         android:id="@+id/view_shadow"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/search_shadow_layout" />
+        android:background="@color/search_shadow_layout"
+        android:visibility="gone"/>
 
     <android.support.v7.widget.CardView
         android:id="@+id/cardView"
@@ -36,7 +37,7 @@
                     android:id="@+id/imageView_arrow_back"
                     android:layout_width="@dimen/search_icon"
                     android:layout_height="@dimen/search_icon"
-                    android:contentDescription="@string/search_cont_desc" />
+                    android:contentDescription="@string/search_cont_desc"/>
 
                 <EditText
                     android:id="@+id/editText_input"
@@ -55,7 +56,7 @@
                     android:paddingBottom="@dimen/search_text_spacing"
                     android:paddingTop="@dimen/search_text_spacing"
                     android:singleLine="true"
-                    android:textSize="@dimen/search_text_medium" />
+                    android:textSize="@dimen/search_text_medium"/>
                 <!-- android:hint="Search" android:imeOptions="actionSearch|flagNoExtractUi"-->
 
                 <FrameLayout
@@ -66,14 +67,14 @@
                         android:id="@+id/imageView_mic"
                         android:layout_width="@dimen/search_icon"
                         android:layout_height="@dimen/search_icon"
-                        android:contentDescription="@string/search_cont_desc" />
+                        android:contentDescription="@string/search_cont_desc"/>
 
                     <ImageView
                         android:id="@+id/imageView_clear"
                         android:layout_width="@dimen/search_icon"
                         android:layout_height="@dimen/search_icon"
                         android:contentDescription="@string/search_cont_desc"
-                        android:visibility="gone" />
+                        android:visibility="gone"/>
 
                 </FrameLayout>
 
@@ -84,12 +85,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_divider"
                 android:background="?android:attr/listDivider"
-                android:gravity="start|center_vertical" />
+                android:gravity="start|center_vertical"
+                android:visibility="gone"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerView_result"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

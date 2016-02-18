@@ -121,11 +121,11 @@ public class ToolbarActivity extends BaseActivity implements View.OnClickListene
 
 		mSearchView.setAdapter(mSearchAdapter);
 
-		showSearchView(); // TODO FIX
+		//		showSearchView(); // TODO FIX
 	}
 
 	@Override public void onBackPressed() {
-		if (mSearchView.isSearchOpen() && mSearchView.isSearchOpen()) {
+		if (mSearchView.isSearchOpen()) {
 			mSearchView.clearFocusedItem();
 			mSearchView.hide(true);
 		} else {

@@ -94,7 +94,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
         if (id == R.id.nav_light) {
             Intent intent = new Intent(this, ToolbarActivity.class);
             intent.putExtra("version", SearchCodes.VERSION_TOOLBAR);
-            intent.putExtra("style", SearchCodes.STYLE_TOOLBAR_CLASSIC);
+            intent.putExtra("style", SearchCodes.STYLE_TOOLBAR_WITH_DRAWER);
             intent.putExtra("theme", SearchCodes.THEME_LIGHT);
             startActivity(intent);
         }
@@ -102,7 +102,7 @@ public abstract class BaseActivity extends AppCompatActivity implements Navigati
         if (id == R.id.nav_dark) {
             Intent intent = new Intent(this, ToolbarActivity.class);
             intent.putExtra("version", SearchCodes.VERSION_TOOLBAR);
-            intent.putExtra("style", SearchCodes.STYLE_TOOLBAR_CLASSIC);
+            intent.putExtra("style", SearchCodes.STYLE_TOOLBAR_WITH_DRAWER);
             intent.putExtra("theme", SearchCodes.THEME_DARK);
             startActivity(intent);
         }
