@@ -323,7 +323,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 			}
 			if (style == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
 				mSearchArrowClassic = ContextCompat.getDrawable(mContext, R.drawable.search_ic_arrow_back_black_24dp);
-				mDefaultIconClassic = ContextCompat.getDrawable(mContext, R.drawable.icon_search_light);
+				mDefaultIconClassic = ContextCompat.getDrawable(mContext, R.drawable.search_ic_light);
 				mBackImageView.setImageDrawable(mDefaultIconClassic);
 			}
 			if (style == SearchCodes.STYLE_TOOLBAR_WITH_DRAWER) {
