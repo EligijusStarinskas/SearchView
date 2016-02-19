@@ -309,6 +309,8 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
             mCardView.setCardElevation(0);
             mCardView.setMaxCardElevation(0);
             mCardView.setRadius(0);
+            params.height = mContext.getResources()
+                    .getDimensionPixelSize(R.dimen.search_item_height);
         }
 
         if (mVersion == SearchCodes.VERSION_MENU_ITEM_FLOATING) {
@@ -323,10 +325,13 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
                     .getDimensionPixelSize(R.dimen.search_menu_item_margin_bottom);
         }
         if (mVersion == SearchCodes.VERSION_MENU_ITEM_CLASSIC) {
+            setVisibility(View.GONE);
             top = 0;
             leftStart = 0;
             rightEnd = 0;
             bottom = 0;
+            params.height = mContext.getResources()
+                    .getDimensionPixelSize(R.dimen.search_item_height);
             mCardView.setCardElevation(0);
             mCardView.setMaxCardElevation(0);
             mCardView.setRadius(0);

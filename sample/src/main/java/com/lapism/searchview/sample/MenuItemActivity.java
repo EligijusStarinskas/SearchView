@@ -29,29 +29,29 @@ public class MenuItemActivity extends BaseActivity {
     private SearchHistoryTable mHistoryDatabase;
     private List<SearchItem> mSuggestionsList;
     private SearchView mSearchView;
-    private int mVersion = SearchCodes.VERSION_MENU_ITEM_FLOATING;
+    private int mVersion = SearchCodes.VERSION_MENU_ITEM_CLASSIC;
     private int mStyle = SearchCodes.STYLE_MENU_ITEM_CLASSIC;
     private int mTheme = SearchCodes.THEME_LIGHT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            mVersion = extras.getInt("version");
-            mStyle = extras.getInt("style");
-            mTheme = extras.getInt("theme");
-
-            if (mTheme == SearchCodes.THEME_LIGHT) {
-                setTheme(R.style.AppThemeLight);
-                checkedMenuItem = -1;
-            }
-
-            if (mTheme == SearchCodes.THEME_DARK) {
-                setTheme(R.style.AppThemeDark);
-                checkedMenuItem = -1;
-            }
-        }
+//        Bundle extras = getIntent().getExtras();
+//        if (extras != null) {
+//            mVersion = extras.getInt("version");
+//            mStyle = extras.getInt("style");
+//            mTheme = extras.getInt("theme");
+//
+//            if (mTheme == SearchCodes.THEME_LIGHT) {
+//                setTheme(R.style.AppThemeLight);
+//                checkedMenuItem = -1;
+//            }
+//
+//            if (mTheme == SearchCodes.THEME_DARK) {
+//                setTheme(R.style.AppThemeDark);
+//                checkedMenuItem = -1;
+//            }
+//        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_item);
@@ -131,10 +131,10 @@ public class MenuItemActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        mSearchView.hide(SearchCodes.ANIMATION_FADE);
+        mSearchView.hide(SearchCodes.ANIMATION_REVEAL);
         mSearchView.clearFocusedItem();
         if (mSearchView.isSearchOpen()) {
-            mSearchView.hide(SearchCodes.ANIMATION_FADE);
+            mSearchView.hide(SearchCodes.ANIMATION_REVEAL);
         }
         super.onBackPressed();
     }
@@ -158,7 +158,7 @@ public class MenuItemActivity extends BaseActivity {
         mSuggestionsList.addAll(mHistoryDatabase.getAllItems());
         mSuggestionsList.add(new SearchItem("Google"));
         mSuggestionsList.add(new SearchItem("Android"));
-        mSearchView.show(SearchCodes.ANIMATION_FADE);
+        mSearchView.show(SearchCodes.ANIMATION_REVEAL);
     }
 
     @Override
