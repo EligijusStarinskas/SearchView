@@ -132,6 +132,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
             }
         }
     };
+    private LinearLayout focusLayout;
 
     public SearchView(Context context) {
         this(context, null);
@@ -164,6 +165,9 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
         SearchLinearLayoutManager layoutManager = new SearchLinearLayoutManager(mContext);
         layoutManager.clearChildSize();
         layoutManager.setChildSize(getResources().getDimensionPixelSize(R.dimen.search_item_height)); // 57dp
+
+        focusLayout = (LinearLayout) findViewById(R.id.focus);
+
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView_result);
         mRecyclerView.setLayoutManager(layoutManager);
@@ -309,8 +313,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
             mCardView.setCardElevation(0);
             mCardView.setMaxCardElevation(0);
             mCardView.setRadius(0);
-            params.height = mContext.getResources()
-                    .getDimensionPixelSize(R.dimen.search_item_height);
+            enlargeFocusLayout();
         }
 
         if (mVersion == SearchCodes.VERSION_MENU_ITEM_FLOATING) {
@@ -330,17 +333,32 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
             leftStart = 0;
             rightEnd = 0;
             bottom = 0;
-            params.height = mContext.getResources()
-                    .getDimensionPixelSize(R.dimen.search_item_height);
             mCardView.setCardElevation(0);
             mCardView.setMaxCardElevation(0);
             mCardView.setRadius(0);
+            enlargeFocusLayout();
         }
         params.setMargins(leftStart, top, rightEnd, bottom);
         mCardView.setLayoutParams(params);
         maxCardElevation = mCardView.getMaxCardElevation();
         defaultCardElevation = mCardView.getCardElevation();
         defaultRadius = mCardView.getRadius();
+    }
+
+    private void enlargeFocusLayout() {
+        focusLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressWarnings("deprecation")
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    focusLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                } else focusLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+
+                focusLayout.getLayoutParams().height = mContext.getResources()
+                        .getDimensionPixelSize(R.dimen.search_height) + mContext.getResources()
+                        .getDimensionPixelSize(R.dimen.search_toolbar_margin_top) * 2;
+            }
+        });
     }
 
     public void setStyle(int style) {
@@ -681,8 +699,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 
     public void clearFocusedItem() {
         mEditText.clearFocus();
-        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.focus);
-        linearLayout.requestFocus();
+        focusLayout.requestFocus();
     }
 
     public void setQuery(CharSequence query) {
