@@ -18,12 +18,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
             <LinearLayout
                 android:id="@+id/focus"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_height"
+                android:layout_gravity="center_vertical"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="start|center_vertical"
@@ -85,14 +87,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/search_divider"
                 android:background="?android:attr/listDivider"
-                android:gravity="start|center_vertical"
-                android:visibility="gone"/>
+                android:gravity="start|center_vertical"/>
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerView_result"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone"/>
+                android:layout_height="wrap_content"/>
 
         </LinearLayout>
 

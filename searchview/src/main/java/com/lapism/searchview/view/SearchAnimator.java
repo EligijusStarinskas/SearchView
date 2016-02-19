@@ -2,16 +2,24 @@ package com.lapism.searchview.view;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
+import android.support.v7.widget.CardView;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.FrameLayout;
 
 import com.lapism.searchview.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 class SearchAnimator {
@@ -82,4 +90,93 @@ class SearchAnimator {
         view.setVisibility(View.GONE);
     }
 
+
+    public static List<Animator> getCardWithMarginsMarginsAnimators(final CardView view,
+                                                                    int toHeight,
+                                                                    int toWidth,
+                                                                    int fromMarginTop,
+                                                                    int toMarginTop,
+                                                                    int fromMarginLeftRight,
+                                                                    int toMarginLeftRight) {
+
+        List<Animator> animatorList = new ArrayList<>();
+        animatorList.add(getTopMarginAnimator(fromMarginTop, toMarginTop, view));
+        animatorList.add(getWidthMarginAnimator(fromMarginLeftRight, toMarginLeftRight, view));
+        animatorList.add(getHeightAnimator(view.getHeight(), toHeight, view));
+        animatorList.add(getWidthAnimator(view.getWidth(), toWidth, view));
+        return animatorList;
+    }
+
+    private static Animator getWidthAnimator(int from, int to, final CardView view) {
+        ValueAnimator animatorWidth = ValueAnimator.ofInt(from, to);
+        animatorWidth.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+                if (params != null) {
+                    params.width = (int) (Integer) valueAnimator.getAnimatedValue();
+                    view.setLayoutParams(params);
+                }
+            }
+        });
+        return animatorWidth;
+    }
+
+    private static Animator getHeightAnimator(int from, int to, final CardView view) {
+        ValueAnimator animatorHeight = ValueAnimator.ofInt(from, to);
+
+        animatorHeight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+                if (params != null) {
+                    params.height = (int) (Integer) valueAnimator.getAnimatedValue();
+                    view.setLayoutParams(params);
+                }
+            }
+        });
+        return animatorHeight;
+    }
+
+    private static Animator getWidthMarginAnimator(int fromValue, int toValue, final CardView view) {
+        ValueAnimator animatorWidthMargins = ValueAnimator.ofInt(fromValue, toValue);
+
+        animatorWidthMargins.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+                if (params != null) {
+                    params.leftMargin = (int) (Integer) valueAnimator.getAnimatedValue();
+                    params.rightMargin = (int) (Integer) valueAnimator.getAnimatedValue();
+                    view.setLayoutParams(params);
+                }
+            }
+        });
+        return animatorWidthMargins;
+    }
+
+    private static Animator getTopMarginAnimator(int fromValue, int toValue, final CardView view) {
+        ValueAnimator animatorHeightMargins = ValueAnimator.ofInt(fromValue, toValue);
+
+        animatorHeightMargins.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+                if (params != null) {
+                    params.topMargin = (int) (Integer) valueAnimator.getAnimatedValue();
+                    view.setLayoutParams(params);
+                }
+            }
+        });
+        return animatorHeightMargins;
+    }
+
+    public static void runAnimatorSet(List<Animator> animatorList, int duration, Animator.AnimatorListener animatorListener) {
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.setDuration(duration);
+        animatorSet.setInterpolator(new AccelerateInterpolator());
+        animatorSet.playTogether(animatorList);
+        animatorSet.addListener(animatorListener);
+        animatorSet.start();
+    }
 }

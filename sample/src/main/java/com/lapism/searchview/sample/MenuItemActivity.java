@@ -29,7 +29,7 @@ public class MenuItemActivity extends BaseActivity {
     private SearchHistoryTable mHistoryDatabase;
     private List<SearchItem> mSuggestionsList;
     private SearchView mSearchView;
-    private int mVersion = SearchCodes.VERSION_MENU_ITEM;
+    private int mVersion = SearchCodes.VERSION_MENU_ITEM_FLOATING;
     private int mStyle = SearchCodes.STYLE_MENU_ITEM_CLASSIC;
     private int mTheme = SearchCodes.THEME_LIGHT;
 
@@ -90,7 +90,7 @@ public class MenuItemActivity extends BaseActivity {
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                mSearchView.hide(false);
+                mSearchView.hide(SearchCodes.ANIMATION_NONE);
                 mHistoryDatabase.addItem(new SearchItem(query));
                 Toast.makeText(getApplicationContext(), query, Toast.LENGTH_SHORT).show();
                 return false;
@@ -118,7 +118,7 @@ public class MenuItemActivity extends BaseActivity {
         mSearchAdapter.setOnItemClickListener(new SearchAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                mSearchView.hide(false);
+                mSearchView.hide(SearchCodes.ANIMATION_NONE);
                 TextView textView = (TextView) view.findViewById(R.id.textView_item_text);
                 CharSequence text = textView.getText();
                 mHistoryDatabase.addItem(new SearchItem(text));
@@ -131,10 +131,10 @@ public class MenuItemActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        mSearchView.hide(true);
+        mSearchView.hide(SearchCodes.ANIMATION_FADE);
         mSearchView.clearFocusedItem();
         if (mSearchView.isSearchOpen()) {
-            mSearchView.hide(true);
+            mSearchView.hide(SearchCodes.ANIMATION_FADE);
         }
         super.onBackPressed();
     }
@@ -158,7 +158,7 @@ public class MenuItemActivity extends BaseActivity {
         mSuggestionsList.addAll(mHistoryDatabase.getAllItems());
         mSuggestionsList.add(new SearchItem("Google"));
         mSuggestionsList.add(new SearchItem("Android"));
-        mSearchView.show(true);
+        mSearchView.show(SearchCodes.ANIMATION_FADE);
     }
 
     @Override
