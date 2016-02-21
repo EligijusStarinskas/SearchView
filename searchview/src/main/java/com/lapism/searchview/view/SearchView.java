@@ -3,18 +3,12 @@ package com.lapism.searchview.view;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.speech.RecognizerIntent;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -47,7 +41,6 @@ import java.util.List;
 
 public class SearchView extends FrameLayout implements Filter.FilterListener {
 
-	public static final int SPEECH_REQUEST_CODE = 1234;
 	private final Context mContext;
 	private int     mVersion                           = SearchCodes.VERSION_TOOLBAR_FLOATING;
 	private int     mStyle                             = SearchCodes.STYLE_TOOLBAR_WITH_DRAWER;
@@ -55,19 +48,15 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 	private int     ANIMATION_DURATION                 = 360;
 	private int     ANIMATION_EXPAND_COLLAPSE_DURATION = 260;
 	private boolean mIsSearchOpen                      = false;
-	private int   top;
-	private int   leftStart;
-	private int   rightEnd;
-	private int   bottom;
-	private float maxCardElevation;
-	private float defaultCardElevation;
-	private float defaultRadius;
-	private String VOICE_SEARCH_TEXT = "Speak now";
-	private View mDivider;
-	private View mShadow;
-	private Activity                        mActivity        = null;
-	private Fragment                        mFragment        = null;
-	private android.support.v4.app.Fragment mSupportFragment = null;
+	private int                       top;
+	private int                       leftStart;
+	private int                       rightEnd;
+	private int                       bottom;
+	private float                     maxCardElevation;
+	private float                     defaultCardElevation;
+	private float                     defaultRadius;
+	private View                      mDivider;
+	private View                      mShadow;
 	private SearchAdapter             mSearchAdapter;
 	private OnQueryTextListener       mOnQueryChangeListener;
 	private SearchViewListener        mSearchViewListener;
@@ -82,7 +71,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 	private CardView                  mCardView;
 	private EditText                  mEditText;
 	private ImageView                 mBackImageView;
-	private ImageView                 mVoiceImageView;
 	private ImageView                 mEmptyImageView;
 	private LinearLayout              focusLayout;
 	private final OnClickListener mOnClickListener = new OnClickListener() {
@@ -101,7 +89,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 						break;
 					case SearchCodes.VERSION_TOOLBAR_MIXED:
 						clearFocusedItem();
-						if (onSearchViewClickListener != null) {
+						if (onSearchViewClickListener != null && mIsSearchOpen) {
 							collapseViewIfNeeded();
 							onSearchViewClickListener.onBackPressed();
 						}
@@ -115,8 +103,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 						clearFocusedItem();
 						break;
 				}
-			} else if (v == mVoiceImageView) {
-				onVoiceClicked();
 			} else if (v == mEmptyImageView) {
 				mEditText.setText(null);
 			} else if (v == mEditText) {
@@ -184,9 +170,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 
 		mBackImageView = (ImageView) findViewById(R.id.imageView_arrow_back);
 		mBackImageView.setOnClickListener(mOnClickListener);
-
-		mVoiceImageView = (ImageView) findViewById(R.id.imageView_mic);
-		mVoiceImageView.setOnClickListener(mOnClickListener);
 
 		mEmptyImageView = (ImageView) findViewById(R.id.imageView_clear);
 		mEmptyImageView.setOnClickListener(mOnClickListener);
@@ -272,12 +255,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 			}
 			if (attr.hasValue(R.styleable.SearchView_search_hint_size)) {
 				setHintSize(attr.getDimensionPixelSize(R.styleable.SearchView_search_hint_size, 0));
-			}
-			if (attr.hasValue(R.styleable.SearchView_search_voice)) {
-				setVoice(attr.getBoolean(R.styleable.SearchView_search_voice, false));
-			}
-			if (attr.hasValue(R.styleable.SearchView_search_voice_text)) {
-				setVoiceText(attr.getString(R.styleable.SearchView_search_voice_text));
 			}
 			if (attr.hasValue(R.styleable.SearchView_search_animation_duration)) {
 				setAnimationDuration(attr.getInt(R.styleable.SearchView_search_animation_duration, ANIMATION_DURATION));
@@ -374,7 +351,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 				mVersion == SearchCodes.VERSION_TOOLBAR_MIXED) {
 
 			if (style == SearchCodes.STYLE_TOOLBAR_WITH_DRAWER || style == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
-				mVoiceImageView.setImageResource(R.drawable.search_ic_mic_black_24dp);
 				mEmptyImageView.setImageResource(R.drawable.search_ic_clear_black_24dp);
 			}
 			if (style == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
@@ -391,12 +367,10 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 		if (mVersion == SearchCodes.VERSION_MENU_ITEM_FLOATING || mVersion == SearchCodes.VERSION_MENU_ITEM_CLASSIC) {
 			if (style == SearchCodes.STYLE_MENU_ITEM_CLASSIC) {
 				mBackImageView.setImageResource(R.drawable.search_ic_arrow_back_black_24dp);
-				mVoiceImageView.setImageResource(R.drawable.search_ic_mic_black_24dp);
 				mEmptyImageView.setImageResource(R.drawable.search_ic_clear_black_24dp);
 			}
 			if (style == SearchCodes.STYLE_MENU_ITEM_COLOR) {
 				mBackImageView.setImageResource(R.drawable.search_ic_arrow_back_color_24dp);
-				mVoiceImageView.setImageResource(R.drawable.search_ic_mic_color_24dp);
 				mEmptyImageView.setImageResource(R.drawable.search_ic_clear_color_24dp);
 			}
 		}
@@ -415,13 +389,11 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 				if (mStyle == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
 					mBackImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
 				}
-				mVoiceImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
 				mEmptyImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
 			}
 			if (mVersion == SearchCodes.VERSION_MENU_ITEM_FLOATING || mVersion == SearchCodes.VERSION_MENU_ITEM_CLASSIC) {
 				if (mStyle == SearchCodes.STYLE_MENU_ITEM_CLASSIC) {
 					mBackImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
-					mVoiceImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
 					mEmptyImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_light_icon));
 				}
 			}
@@ -442,13 +414,11 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 				if (mStyle == SearchCodes.STYLE_TOOLBAR_CLASSIC) {
 					mBackImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
 				}
-				mVoiceImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
 				mEmptyImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
 			}
 			if (mVersion == SearchCodes.VERSION_MENU_ITEM_FLOATING || mVersion == SearchCodes.VERSION_MENU_ITEM_CLASSIC) {
 				if (mStyle == SearchCodes.STYLE_MENU_ITEM_CLASSIC) {
 					mBackImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
-					mVoiceImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
 					mEmptyImageView.setColorFilter(ContextCompat.getColor(mContext, R.color.search_dark_icon));
 				}
 			}
@@ -480,33 +450,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 		mEditText.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
 	}
 
-	public void setVoice(boolean voice) {
-		if (voice && isVoiceAvailable()) {
-			mVoiceImageView.setVisibility(View.VISIBLE);
-		} else {
-			mVoiceImageView.setVisibility(View.GONE);
-		}
-	}
-
-	public void setVoice(boolean voice, Activity context) {
-		mActivity = context;
-		setVoice(voice);
-	}
-
-	public void setVoice(boolean voice, Fragment context) {
-		mFragment = context;
-		setVoice(voice);
-	}
-
-	public void setVoice(boolean voice, android.support.v4.app.Fragment context) {
-		mSupportFragment = context;
-		setVoice(voice);
-	}
-
-	public void setVoiceText(String voice_text) {
-		VOICE_SEARCH_TEXT = voice_text;
-	}
-
 	public void setAnimationDuration(int animation_duration) {
 		ANIMATION_DURATION = animation_duration;
 	}
@@ -529,6 +472,7 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 							mCardView.setRadius(0);
 							showKeyboard();
 							showBackArrow();
+							mIsSearchOpen = true;
 						}
 					};
 
@@ -538,7 +482,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 							                                                  top, 0, leftStart, 0);
 
 					SearchAnimator.runAnimatorSet(animators, ANIMATION_EXPAND_COLLAPSE_DURATION, animatorListener);
-					mIsSearchOpen = true;
 					if (onSearchViewClickListener != null) {
 						onSearchViewClickListener.onSearchViewClicked();
 					}
@@ -591,33 +534,6 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 					mBackImageView.setImageDrawable(mDefaultIconClassic);
 				}
 				break;
-		}
-	}
-
-	private boolean isVoiceAvailable() {
-		PackageManager pm = getContext().getPackageManager();
-		List<ResolveInfo> activities =
-				pm.queryIntentActivities(new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
-		return activities.size() != 0;
-	}
-
-	private void onVoiceClicked() {
-		Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-		                RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);// LANGUAGE_MODEL_FREE_FORM
-		intent.putExtra(RecognizerIntent.EXTRA_PROMPT, VOICE_SEARCH_TEXT);
-		intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-
-		if (mActivity != null) {
-			mActivity.startActivityForResult(intent, SPEECH_REQUEST_CODE);
-		} else if (mFragment != null) {
-			mFragment.startActivityForResult(intent, SPEECH_REQUEST_CODE);
-		} else if (mSupportFragment != null) {
-			mSupportFragment.startActivityForResult(intent, SPEECH_REQUEST_CODE);
-		} else {
-			if (mContext instanceof Activity) {
-				((Activity) mContext).startActivityForResult(intent, SPEECH_REQUEST_CODE);
-			}
 		}
 	}
 
@@ -678,10 +594,8 @@ public class SearchView extends FrameLayout implements Filter.FilterListener {
 		boolean hasText = !TextUtils.isEmpty(text);
 		if (hasText) {
 			mEmptyImageView.setVisibility(View.VISIBLE);
-			setVoice(false);
 		} else {
 			mEmptyImageView.setVisibility(View.GONE);
-			setVoice(true);
 		}
 		if (mOnQueryChangeListener != null && !TextUtils.equals(newText, mOldQueryText)) {
 			mOnQueryChangeListener.onQueryTextChange(newText.toString());
